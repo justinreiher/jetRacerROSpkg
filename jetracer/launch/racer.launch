@@ -1,0 +1,10 @@
+<launch>
+	<group ns="racerParam">	
+	  <rosparam file="$(find jetracer)/config/racerParams.yaml" />
+	</group>
+
+	<group ns="jetRacer_Car">
+	  <node pkg="jetracer" name="jetracerCar" type="jetRacer_Car" />
+	</group>
+
+</launch>

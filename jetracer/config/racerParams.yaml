@@ -1,0 +1,24 @@
+# parameters to configure the jetracer hardware/limits to prevent damage
+# Definitions:
+#   PWM - Pulse Width Modulation
+#
+#ROS Node details
+timeout: 5000             # timeout in ms that will put the racer in a neutral and stationary position. 
+messageBufferSize: 100    # Size of message buffer for the jetracer_car node
+# PCA9685 driver details
+i2cPWMDriverAddress: 0x40 # address for the pwm driver (PCA9685)
+steerChannel: 0           # PWM driver channel connected to steering control
+throttleChannel: 1        # PWM driver channel connected to throttle control
+pwmFrequency: 50          # frequency in Hz for the PWM driver board
+# jetracer limits
+steerOffset: 0.0          # steering offset angle (in radians) 
+throttleOffset: 0.0       # throttle offset (as percentage - negative values correspond to going in reverse)
+steerAngleMin: -0.2617994 #approximation to -pi/12
+steerAngleMax: 0.2617994  #approximation to pi/12
+dcSteerMin: 2800         # minimum duty cycle (as a percentage) that can be applied to steering control for full right turn
+dcSteerMax: 7600         # maximum duty cycle (as a percentage) that can be applied to steering control for full left turn
+dcThrottleMin: 0
+dcThrottleMax: 65000
+throttleMin: -100.0
+throttleMax: 100.0
+
