@@ -17,8 +17,8 @@ steerAngleMin: -0.2617994 #approximation to -pi/12
 steerAngleMax: 0.2617994  #approximation to pi/12
 dcSteerMin: 2800         # minimum duty cycle (as a percentage) that can be applied to steering control for full right turn
 dcSteerMax: 7600         # maximum duty cycle (as a percentage) that can be applied to steering control for full left turn
-dcThrottleMin: 0
-dcThrottleMax: 65000
-throttleMin: -100.0
-throttleMax: 100.0
+dcThrottleFwrdFull: 2800
+dcThrottleReverseFull: 7600
+throttleReverseMax: -100.0
+throttleForwardMax: 100.0
 

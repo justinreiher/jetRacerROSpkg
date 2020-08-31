@@ -47,7 +47,7 @@ int main(int argc, char **argv)
   ros::Publisher controller = node.advertise<jetracer::jetRacerCar>("/jetRacer_Controller",bufferSize);
 
 
-  ros::Rate loop_rate(4);
+  ros::Rate loop_rate(30);
 
   int count = -100;
 

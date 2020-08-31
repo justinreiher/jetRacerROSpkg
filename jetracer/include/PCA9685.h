@@ -59,10 +59,10 @@ class PCA9685Driver{
     int steerPWMGain;
     int steerPWMOffset;
     
-    float throttleMin;
-    float throttleMax;
-    int throttleMinDC;
-    int throttleMaxDC;
+    float throttleReverseMax;
+    float throttleForwardMax;
+    int throttleMaxReverseDC;
+    int throttleMaxFwrdDC;
     int throttlePWMGain;
     int throttlePWMOffset;
     

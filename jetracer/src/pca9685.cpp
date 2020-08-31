@@ -20,10 +20,10 @@ PCA9685Driver::PCA9685Driver(ros::NodeHandle &node)
   node.getParam("/racerParam/dcSteerMax", this->steerMaxDC);
 
   //get the hard limits for throttle
-  node.getParam("/racerParam/throttleMin", this->throttleMin);
-  node.getParam("/racerParam/throttleMax", this->throttleMax);
-  node.getParam("/racerParam/dcThrottleMin", this->throttleMinDC);
-  node.getParam("/racerParam/dcThrottleMax", this->throttleMaxDC);
+  node.getParam("/racerParam/throttleReverseMax", this->throttleReverseMax);
+  node.getParam("/racerParam/throttleForwardMax", this->throttleForwardMax);
+  node.getParam("/racerParam/dcThrottleFwrdFull", this->throttleMaxFwrdDC);
+  node.getParam("/racerParam/dcThrottleReverseFull", this->throttleMaxReverseDC);
   
   //read back and display the loaded in parameters - useful to double check the parameters have been read in properly.
   ROS_INFO("PCA9685 PWM Driver i2c Address: %#2x", this->i2cAddress);
@@ -38,16 +38,16 @@ PCA9685Driver::PCA9685Driver(ros::NodeHandle &node)
   ROS_INFO("Max Duty Cycle Steer Limit: %d", this->steerMaxDC);
   
   ROS_INFO("jetRacer Throttle Limits:");
-  ROS_INFO("Min Throttle: %f", this->throttleMin);
-  ROS_INFO("Max Throttle: %f", this->throttleMax);
-  ROS_INFO("Min Duty Cycle Throttle Limit: %d",this->throttleMinDC);
-  ROS_INFO("Max Duty Cycle Throttle Limit: %d",this->throttleMaxDC);
+  ROS_INFO("Max Throttle Reverse: %f", this->throttleReverseMax);
+  ROS_INFO("Max Throttle Forward: %f", this->throttleForwardMax);
+  ROS_INFO("Max Duty Cycle Throttle Reverse: %d",this->throttleMaxReverseDC);
+  ROS_INFO("Max Duty Cycle Throttle Forward: %d",this->throttleMaxFwrdDC);
 
   this->steerPWMOffset    = (this->steerMinDC + this->steerMaxDC)/2;
   this->steerPWMGain      = round((this->steerMinDC - this->steerPWMOffset)/this->steerAngleMin);
 
-  this->throttlePWMOffset = (this->throttleMinDC + this->throttleMaxDC)/2;
-  this->throttlePWMGain   = round((this->throttleMinDC - this->throttlePWMOffset)/this->throttleMin);
+  this->throttlePWMOffset = (this->throttleMaxFwrdDC + this->throttleMaxReverseDC)/2;
+  this->throttlePWMGain   = round((this->throttleMaxFwrdDC - this->throttlePWMOffset)/this->throttleForwardMax);
 
 
   ROS_INFO("Initializing PCA9685 PWM Driver...");
@@ -69,16 +69,17 @@ void PCA9685Driver::setPWM_DutyCycle(const jetracer::jetRacerCar::ConstPtr& msg)
 	int pwmThrottle; 
 	
 	//managing steering messages    
-	ROS_INFO("I got steering msg: %f", msg->steerAngle);
+	ROS_INFO("Steering set to: %f", msg->steerAngle);
         pwmSteerAngle = PCA9685Driver::angleToPWM(msg->steerAngle);
-        ROS_INFO("Converted PWM Steer: %d",pwmSteerAngle);
+        //ROS_INFO("Converted PWM Steer: %d",pwmSteerAngle);
 	PCA9685Driver::sendData(this->steerChannel,pwmSteerAngle);
 	
 
 	//managing throttle messages
-	ROS_INFO("I got throttle msg: %f", msg->throttle);
+	ROS_INFO("Throttle msg: %f", msg->throttle);
    	pwmThrottle = PCA9685Driver::throttleToPWM(msg->throttle);
-	ROS_INFO("Converted PWM Throttle: %d",pwmThrottle);
+	//ROS_INFO("Converted PWM Throttle: %d",pwmThrottle);
+        PCA9685Driver::sendData(this->throttleChannel,pwmThrottle);
 
 }
 
@@ -131,16 +132,16 @@ int PCA9685Driver::throttleToPWM(float throttle)
 {
   int pwmThrottle = round(this->throttlePWMOffset + this->throttlePWMGain*throttle);
  
-  if(pwmThrottle > this->throttleMaxDC)
+  if(pwmThrottle < this->throttleMaxFwrdDC)
   {
-     pwmThrottle = this->throttleMaxDC;
-     ROS_INFO("Warning - Throttle saturated to: %f",this->throttleMax);
+     pwmThrottle = this->throttleMaxFwrdDC;
+     ROS_WARN("Warning - Throttle saturated to: %f",this->throttleForwardMax);
   }
 
-  if(pwmThrottle < this->throttleMinDC)
+  if(pwmThrottle > this->throttleMaxReverseDC)
   {
-    pwmThrottle = this->throttleMinDC;
-    ROS_INFO("Warning - Throttle saturated to: %f", this->throttleMin);
+    pwmThrottle = this->throttleMaxReverseDC;
+    ROS_WARN("Warning - Throttle saturated to: %f", this->throttleReverseMax);
   }
 
   return pwmThrottle;
@@ -188,7 +189,7 @@ bool PCA9685Driver::Reset()
     int pwmThrottleZero = PCA9685Driver::throttleToPWM(0.0);
 
     PCA9685Driver::sendData(this->steerChannel,pwmSteerCenter);
-   //PCA9685Driver::sendData(this->throttleChannel,pwmThrottleZero);
+   PCA9685Driver::sendData(this->throttleChannel,pwmThrottleZero);
 
     return true;
 }
