@@ -31,6 +31,13 @@
 #include "ros/ros.h"
 #include "jetracer/jetRacerCar.h"
 
+#include <std_msgs/String.h>
+#include <std_msgs/Empty.h>
+
+#include <cstring>
+#include <iostream>
+#include <stdio.h>
+
 #include <cmath>
 
 int main(int argc, char **argv)
@@ -46,11 +53,13 @@ int main(int argc, char **argv)
 
   ros::Publisher controller = node.advertise<jetracer::jetRacerCar>("/jetRacer_Controller",bufferSize);
 
+  
+  ros::Rate loop_rate(10);
 
-  ros::Rate loop_rate(30);
+  int count = 0;
+  ROS_INFO("Starting in 20\n");
 
-  int count = -100;
-
+  ros::Duration(20).sleep();
   ROS_INFO("Starting test...");
 
   while(ros::ok())
@@ -61,8 +70,8 @@ int main(int argc, char **argv)
    if(count <= 100)
    {
     
-      msg.steerAngle = count*M_PI/1200;
-      msg.throttle = count;
+      msg.steerAngle = -M_PI/12;//count*M_PI/1200;
+      msg.throttle = count/2;
 
       controller.publish(msg);
 

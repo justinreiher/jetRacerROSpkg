@@ -7,4 +7,8 @@
 	  <node pkg="jetracer" name="jetracerCar" type="jetRacer_Car" />
 	</group>
 
+	<group ns="jetRacer_sensor">
+	  <node pkg="jetsonSensorBoard" name="jetson_Board" type="jetsonSensorBoard" />
+	</group>
+
 </launch>
